@@ -33,26 +33,26 @@ function volt_custom_header_setup() {
 add_action( 'after_setup_theme', 'volt_custom_header_setup' );
 
 if ( ! function_exists( 'volt_header_style' ) ) :
-/**
+	/**
  * Styles the header image and text displayed on the blog.
  *
  * @see volt_custom_header_setup().
  */
-function volt_header_style() {
-	$header_text_color = get_header_textcolor();
+	function volt_header_style() {
+		$header_text_color = get_header_textcolor();
 
-	/*
-	 * If no custom options for text are set, let's bail.
-	 * get_header_textcolor() options: Any hex value, 'blank' to hide text. Default: HEADER_TEXTCOLOR.
-	 */
-	if ( HEADER_TEXTCOLOR === $header_text_color ) {
-		return;
-	}
+		/*
+		 * If no custom options for text are set, let's bail.
+		 * get_header_textcolor() options: Any hex value, 'blank' to hide text. Default: HEADER_TEXTCOLOR.
+		 */
+		if ( HEADER_TEXTCOLOR === $header_text_color ) {
+			return;
+		}
 
-	// If we get this far, we have custom styles. Let's do this.
-	?>
-	<style type="text/css">
-	<?php
+		// If we get this far, we have custom styles. Let's do this.
+		?>
+		<style type="text/css">
+		<?php
 		// Has the text been hidden?
 		if ( ! display_header_text() ) :
 	?>
@@ -72,5 +72,5 @@ function volt_header_style() {
 	<?php endif; ?>
 	</style>
 	<?php
-}
+	}
 endif;
