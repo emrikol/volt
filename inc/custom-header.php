@@ -34,10 +34,10 @@ add_action( 'after_setup_theme', 'volt_custom_header_setup' );
 
 if ( ! function_exists( 'volt_header_style' ) ) :
 	/**
- * Styles the header image and text displayed on the blog.
- *
- * @see volt_custom_header_setup().
- */
+	 * Styles the header image and text displayed on the blog.
+	 *
+	 * @see volt_custom_header_setup().
+	 */
 	function volt_header_style() {
 		$header_text_color = get_header_textcolor();
 
