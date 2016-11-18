@@ -64,9 +64,19 @@ if ( ! function_exists( 'volt_setup' ) ) :
 			'default-color' => 'ffffff',
 			'default-image' => '',
 		) ) );
+
+		// Remove Emoji scripts/css, not AMP compatible.
+		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+		remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	}
 endif;
 add_action( 'after_setup_theme', 'volt_setup' );
+
+function volt_filter_search_form( $form ) {
+	// AMP requires a form target of _top or _blank.
+	return str_replace( '<form role="search"', '<form target="_blank" role="search"', $form );
+}
+add_filter( 'get_search_form', 'volt_filter_search_form', 10, 1 );
 
 /**
  * Set the content width in pixels, based on the theme's design and stylesheet.
@@ -98,21 +108,69 @@ function volt_widgets_init() {
 }
 add_action( 'widgets_init', 'volt_widgets_init' );
 
+// Remove Recent Comments widget style, not AMP compatible.
+function volt_remove_recent_comments_widget_style() {
+	global $wp_widget_factory;
+	remove_action( 'wp_head', array( $wp_widget_factory->widgets['WP_Widget_Recent_Comments'], 'recent_comments_style' ) );
+}
+add_action( 'widgets_init', 'volt_remove_recent_comments_widget_style' );
+
 /**
  * Enqueue scripts and styles.
  */
 function volt_scripts() {
-	wp_enqueue_style( 'volt-style', get_stylesheet_uri() );
-
-	wp_enqueue_script( 'volt-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
-
-	wp_enqueue_script( 'volt-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
+	// Not AMP compatible.
+	//wp_enqueue_style( 'volt-style', get_stylesheet_uri() );
+	//wp_enqueue_script( 'volt-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
+	//wp_enqueue_script( 'volt-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
+	wp_enqueue_script( 'amp-js', 'https://cdn.ampproject.org/v0.js', array(), null );
+	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array(), null );
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'volt_scripts' );
+
+function volt_get_current_url() {
+	global $wp;
+	return home_url( add_query_arg( array(), $wp->request ) );
+}
+
+function volt_namespace_async_scripts( $tag, $handle ) {
+	// TODO: filterize this, rename to something more generic
+	$async = array(
+		'amp-js',
+		'amp-form',
+	);
+
+	$custom = array(
+		'amp-form' => array(
+			'custom-element' => 'amp-form',
+		),
+	);
+
+	// Add async attribute.
+	if ( in_array( $handle, $async, true ) ) {
+		$tag = str_replace( ' src', ' async src', $tag );
+	}
+
+	// Custom attributes.
+	if ( isset( $custom[ $handle ] ) && ! empty( $custom[ $handle ] ) ) {
+		foreach ( $custom[ $handle ] as $attribute => $value ) {
+			$tag = str_replace( ' src', ' ' . wp_kses_post( $attribute ) . '="' . esc_attr( $value ) . '" src', $tag );
+		}
+	}
+
+	return $tag;
+}
+add_filter( 'script_loader_tag', 'volt_namespace_async_scripts', 10, 2 );
+
+function volt_deregister_footer_scripts() {
+	// Not AMP compatible.
+	wp_dequeue_script( 'wp-embed' );
+}
+add_action( 'wp_footer', 'volt_deregister_footer_scripts' );
 
 /**
  * Implement the Custom Header feature.
