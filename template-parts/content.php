@@ -1,47 +1,26 @@
-<?php
-/**
- * Template part for displaying posts.
- *
- * @link https://codex.wordpress.org/Template_Hierarchy
- *
- * @package Volt
- */
-
-?>
-
-<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-	<header class="entry-header">
-		<?php
-		if ( is_single() ) :
-			the_title( '<h1 class="entry-title">', '</h1>' );
-		else :
-			the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' );
-		endif;
-
-		if ( 'post' === get_post_type() ) : ?>
-		<div class="entry-meta">
-			<?php volt_posted_on(); ?>
-		</div><!-- .entry-meta -->
-		<?php
-		endif; ?>
-	</header><!-- .entry-header -->
-
-	<div class="entry-content">
-		<?php
-			the_content( sprintf(
-				/* translators: %s: Name of current post. */
-				wp_kses( __( 'Continue reading %s <span class="meta-nav">&rarr;</span>', 'volt' ), array( 'span' => array( 'class' => array() ) ) ),
-				the_title( '<span class="screen-reader-text">"', '"</span>', false )
-			) );
-
-			wp_link_pages( array(
-				'before' => '<div class="page-links">' . esc_html__( 'Pages:', 'volt' ),
-				'after'  => '</div>',
-			) );
-		?>
-	</div><!-- .entry-content -->
-
-	<footer class="entry-footer">
-		<?php volt_entry_footer(); ?>
-	</footer><!-- .entry-footer -->
-</article><!-- #post-## -->
+<div <?php post_class(); ?>>
+	<?php do_action( 'volt_post_before' ); ?>
+	<article>
+		<?php volt_featured_image(); ?>
+		<div class="post-container">
+			<div class='post-header'>
+				<h1 class='post-title'><?php the_title(); ?></h1>
+				<?php get_template_part( 'template-parts/post-byline' ); ?>
+			</div>
+			<div class="post-content">
+				<?php the_content(); ?>
+				<?php wp_link_pages( array(
+					'before' => '<p class="singular-pagination">' . esc_html__( 'Pages:', 'volt' ),
+					'after'  => '</p>',
+				) ); ?>
+				<?php do_action( 'volt_post_after' ); ?>
+			</div>
+			<div class="post-meta">
+				<?php get_template_part( 'template-parts/post-categories' ); ?>
+				<?php get_template_part( 'template-parts/post-tags' ); ?>
+				<?php get_template_part( 'template-parts/post-nav' ); ?>
+			</div>
+		</div>
+	</article>
+	<?php comments_template(); ?>
+</div>
