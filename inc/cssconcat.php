@@ -109,7 +109,9 @@ class WPcom_CSS_Concat extends WP_Styles {
 			return $this->done;
 		}
 
-		echo '<style amp-custom>' . PHP_EOL;
+		require_once( 'cssmin.php' );
+		$css_minify = new CSSmin();
+		echo '<style amp-custom>' . PHP_EOL; // @codingStandardsIgnoreLine.
 		foreach ( $stylesheets as $idx => $stylesheets_group ) {
 			foreach ( $stylesheets_group as $media => $css ) {
 				if ( 'noconcat' === $media ) {
@@ -138,15 +140,34 @@ class WPcom_CSS_Concat extends WP_Styles {
 					$href = $this->cache_bust_mtime( $siteurl . current( $css ) );
 				}
 
+				$css_size = 0;
 				foreach ( $css as $css_url ) {
-					echo '/* CSS: ' . $handle . ' */' . PHP_EOL;
-					echo file_get_contents( $siteurl . $css_url ) . PHP_EOL;
+					$cache_key = md5( $css_url . ':' . $mtime );
+					$css_header = '/* CSS: ' . $css_url . ':' . $mtime . ' */';
+
+					$cached_minfied_css = wp_cache_get( $cache_key, 'volt_concat_css' );
+					if ( false === $cached_minfied_css ) {
+						$cached_minified_css = $css_minify->run( file_get_contents( $siteurl . $css_url ) ); // @codingStandardsIgnoreLine.
+						wp_cache_set( $cache_key, $cached_minified_css, 'volt_concat_css', HOUR_IN_SECONDS * 24 );
+					}
+
+					echo wp_kses_post( $css_header . PHP_EOL );
+					echo wp_kses_post( $cached_minified_css . PHP_EOL );
+
+					$css_size += strlen( $css_header . PHP_EOL ) + strlen( $cached_minified_css . PHP_EOL );
 				}
-				//echo apply_filters( 'style_loader_tag', "<link rel='stylesheet' id='$media-css-$idx' href='$href' type='text/css' media='$media' />\n", $handle, $href, $media );
+
+				// AMP requires custom css to be under 50,000 bytes
+				if ( $css_size >= 50000 ) {
+					set_transient( 'volt_big_css', $css_size );
+				} else {
+					delete_transient( 'volt_big_css' );
+				}
 				array_map( array( $this, 'print_inline_style' ), array_keys( $css ) );
 			}
 		}
-		echo '</style>' . PHP_EOL;
+		echo '</style>' . PHP_EOL; // @codingStandardsIgnoreLine.
+
 		return $this->done;
 	}
 

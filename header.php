@@ -21,19 +21,19 @@
 						<?php
 							$logo = get_theme_mod( 'custom_logo' );
 
-							if ( $logo ) {
-								echo "<div id='site-title' class='site-title'>";
-								if ( function_exists( 'the_custom_logo' ) ) {
-									the_custom_logo();
-								}
-								echo '</div>';
-							} else {
-								echo "<div id='site-title' class='site-title'>";
-									echo "<a href='" . esc_url( home_url() ) . "'>";
-									echo esc_html( get_bloginfo( 'name' ) );
-									echo '</a>';
-								echo '</div>';
+						if ( $logo ) {
+							echo "<div id='site-title' class='site-title'>";
+							if ( function_exists( 'the_custom_logo' ) ) {
+								the_custom_logo();
 							}
+							echo '</div>';
+						} else {
+							echo "<div id='site-title' class='site-title'>";
+							echo "<a href='" . esc_url( home_url() ) . "'>";
+							echo esc_html( get_bloginfo( 'name' ) );
+							echo '</a>';
+							echo '</div>';
+						}
 						?>
 						</div>
 						<button id="toggle-navigation" class="toggle-navigation" name="toggle-navigation" aria-expanded="false">
@@ -56,7 +56,7 @@
 									<?php endif; ?>
 									<?php get_template_part( 'menu', 'primary' ); ?>
 									<?php get_template_part( 'content/search-bar' ); ?>
-									<?php //volt_social_icons_output(); ?>
+									<?php // volt_social_icons_output(); ?>
 								</div>
 							</div>
 						</div>

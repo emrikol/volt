@@ -8,6 +8,7 @@
  */
 
 if ( ! is_admin() ) {
+	// Frontend CSS needs to all be concatenated together, and under 50,000 bytes
 	require get_template_directory() . '/inc/cssconcat.php';
 }
 
@@ -80,6 +81,27 @@ if ( ! function_exists( 'volt_setup' ) ) :
 endif;
 add_action( 'after_setup_theme', 'volt_setup' );
 
+// Commenting uses way too many form stuffs that aren't AMP compatible
+function volt_force_comment_registration( $value ) {
+	if ( ! is_admin() ) {
+		return true;
+	}
+	return $value;
+}
+add_filter( 'option_comment_registration', 'volt_force_comment_registration' );
+function volt_show_comment_registration_admin_notice() {
+	$screen = get_current_screen();
+
+	if ( 'options-discussion' === $screen->id ) {
+		?>
+		<div class="notice notice-warning is-dismissible">
+			<p><?php esc_html_e( 'Your current theme (Volt) forces comment registration on the front end for AMP compatibility.', 'volt' ); ?></p>
+		</div>
+		<?php
+	}
+}
+add_action( 'admin_notices', 'volt_show_comment_registration_admin_notice' );
+
 function volt_filter_search_form( $form ) {
 	// AMP requires a form target of _top or _blank.
 	return str_replace( '<form role="search"', '<form target="_blank" role="search"', $form );
@@ -130,14 +152,8 @@ function volt_scripts() {
 	wp_enqueue_style( 'volt-style', get_stylesheet_uri() );
 
 	// Not AMP compatible.
-	// wp_enqueue_script( 'volt-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20151215', true );
-	// wp_enqueue_script( 'volt-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
 	wp_enqueue_script( 'amp-js', 'https://cdn.ampproject.org/v0.js', array(), null );
 	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array(), null );
-
-	//if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
-	//	wp_enqueue_script( 'comment-reply' );
-	//}
 }
 add_action( 'wp_enqueue_scripts', 'volt_scripts' );
 
@@ -231,15 +247,13 @@ if ( ! function_exists( 'volt_featured_image' ) ) {
 			if ( is_singular() ) {
 				$featured_image = '<div class="featured-image">' . $image_amp_tag . '</div>';
 			} else {
-				$featured_image = '<div class="featured-image"><a href="' . esc_url( get_permalink() ) . '">' . esc_html( get_the_title() ) . $image_amp_tag . '</a></div>';
+				$featured_image = '<div class="featured-image"><a href="' . esc_url( get_permalink() ) . '">' . $image_amp_tag . '</a></div>';
 			}
 		}
 
 		$featured_image = apply_filters( 'volt_featured_image', $featured_image );
 
-		// Not working in WP 4.6
-		//echo wp_kses_post( $featured_image );
-		echo $featured_image;
+		echo wp_kses_post( $featured_image );
 	}
 }
 
@@ -324,7 +338,7 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 		}
 
 		if ( ! is_admin() ) {
-			foreach( $allowed_tags as $key => $tag ) {
+			foreach ( $allowed_tags as $key => $tag ) {
 				if ( isset( $allowed_tags[ $key ]['style'] ) ) {
 					unset( $allowed_tags[ $key ]['style'] );
 				}
@@ -385,7 +399,6 @@ if ( ! function_exists( 'volt_content_transform_images' ) ) {
 			$content = str_replace( $img_tag, $amp_img, $content );
 		}
 
-
 		return $content;
 	}
 }
@@ -405,17 +418,32 @@ if ( ! function_exists( 'volt_comment_form' ) ) {
 		$form_html = ob_get_contents();
 		ob_end_clean();
 
-		echo str_replace( '<form action=', '<form target="_blank" action-xhr=', $form_html );
+		echo str_replace( '<form action=', '<form target="_blank" action-xhr=', $form_html ); // @codingStandardsIgnoreLine.
 	}
 }
 
 if ( ! function_exists( 'volt_filter_password_form' ) ) {
 	function volt_filter_password_form( $form_html ) {
-		//var_dump( $form_html );
 		return str_replace( '<form action=', '<form target="_blank" action-xhr=', $form_html );
 	}
 }
 add_filter( 'the_password_form', 'volt_filter_password_form', 10, 1 );
+
+
+if ( ! function_exists( 'volt_big_css_admin_notice' ) ) {
+	function volt_big_css_admin_notice() {
+		$css_size = get_transient( 'volt_big_css' );
+		if ( false === $css_size ) {
+			return;
+		}
+		?>
+		<div class="notice notice-error">
+			<p><?php echo wp_kses_post( sprintf( 'AMP CSS is too long!  It is %d bytes and the limit is 50000 bytes.  <a href="https://www.ampproject.org/docs/reference/spec#maximum-size">Learn more</a>', absint( $css_size ) ), 'volt' ); ?></p>
+		</div>
+		<?php
+	}
+}
+add_action( 'admin_notices', 'volt_big_css_admin_notice' );
 
 /**
  * Implement the Custom Header feature.

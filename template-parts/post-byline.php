@@ -3,24 +3,24 @@
 $author_display = get_theme_mod( 'display_post_author' );
 $date_display   = get_theme_mod( 'display_post_date' );
 
-if ( $author_display === 'hide' && $date_display === 'hide' ) {
+if ( 'hide' === $author_display && 'hide' === $date_display ) {
 	return;
 }
 
 ?>
 
 <div class="post-byline">
-	<?php if ( $author_display !== 'hide' ) : ?>
+	<?php if ( 'hide' !== $author_display ) : ?>
 		<span class="post-author">
 			<span><?php esc_html_e( 'By', 'volt' ); ?></span>
 			<?php the_author(); ?>
 		</span>
 	<?php endif; ?>
-	<?php if ( $date_display !== 'hide' ) : ?>
+	<?php if ( 'hide' !== $date_display ) : ?>
 		<span class="post-date">
 			<span>
 				<?php
-				if ( $author_display !== 'hide' ) {
+				if ( 'hide' !== $author_display ) {
 					esc_html_e( 'on', 'volt' );
 				}
 				?>

@@ -16,7 +16,7 @@ if ( comments_open() ) { ?>
 			<?php wp_list_comments( array( 'callback' => 'volt_customize_comments' ) ); ?>
 		</ol>
 		<?php
-		if ( ( get_option( 'page_comments' ) == 1 ) && ( get_comment_pages_count() > 1 ) ) { ?>
+		if ( ( 1 === get_option( 'page_comments' ) ) && ( get_comment_pages_count() > 1 ) ) { ?>
 			<nav class="comment-pagination">
 				<p class="previous-comment"><?php previous_comments_link(); ?></p>
 				<p class="next-comment"><?php next_comments_link(); ?></p>
@@ -36,14 +36,14 @@ if ( comments_open() ) { ?>
 			<?php wp_list_comments( array( 'callback' => 'volt_customize_comments' ) ); ?>
 		</ol>
 		<?php
-		if ( ( get_option( 'page_comments' ) == 1 ) && ( get_comment_pages_count() > 1 ) ) { ?>
+		if ( ( 1 === get_option( 'page_comments' ) ) && ( get_comment_pages_count() > 1 ) ) { ?>
 			<nav class="comment-pagination">
 				<p class="previous-comment"><?php previous_comments_link(); ?></p>
 				<p class="next-comment"><?php next_comments_link(); ?></p>
 			</nav>
 		<?php } ?>
 		<p class="comments-closed pings-open">
-			<?php printf( __( 'Comments are closed, but <a href="%s" title="Trackback URL for this post">trackbacks</a> and pingbacks are open.', 'volt' ), esc_url( get_trackback_url() ) ); ?>
+			<?php printf( esc_html__( 'Comments are closed, but <a href="%s" title="Trackback URL for this post">trackbacks</a> and pingbacks are open.', 'volt' ), esc_url( get_trackback_url() ) ); ?>
 		</p>
 	</section>
 	<?php
@@ -58,21 +58,21 @@ if ( comments_open() ) { ?>
 			<?php wp_list_comments( array( 'callback' => 'volt_customize_comments' ) ); ?>
 		</ol>
 		<?php
-		if ( ( get_option( 'page_comments' ) == 1 ) && ( get_comment_pages_count() > 1 ) ) { ?>
+		if ( ( 1 === get_option( 'page_comments' ) ) && ( get_comment_pages_count() > 1 ) ) { ?>
 			<nav class="comment-pagination">
 				<p class="previous-comment"><?php previous_comments_link(); ?></p>
 				<p class="next-comment"><?php next_comments_link(); ?></p>
 			</nav>
 		<?php } ?>
 		<p class="comments-closed">
-			<?php _e( 'Comments are closed.', 'volt' ); ?>
+			<?php esc_html_e( 'Comments are closed.', 'volt' ); ?>
 		</p>
 	</section>
 	<?php
 } else { ?>
 	<section id="comments" class="comments">
 		<p class="comments-closed">
-			<?php _e( 'Comments are closed.', 'volt' ); ?>
+			<?php esc_html_e( 'Comments are closed.', 'volt' ); ?>
 		</p>
 	</section>
 <?php }
