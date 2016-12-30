@@ -158,7 +158,7 @@ class WPcom_CSS_Concat extends WP_Styles {
 				}
 
 				// AMP requires custom css to be under 50,000 bytes
-				if ( $css_size >= 50000 ) {
+				if ( $css_size >= 50000 && ! is_user_logged_in() ) {
 					set_transient( 'volt_big_css', $css_size );
 				} else {
 					delete_transient( 'volt_big_css' );
