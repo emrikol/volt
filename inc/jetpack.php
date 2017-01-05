@@ -8,12 +8,10 @@
  */
 
 // Lots of this taken from https://github.com/Automattic/amp-wp/blob/e0050b70825b1ad583b6d9183e8b567c3a9b3ed8/jetpack-helper.php
-
 add_action( 'init', 'volt_jetpack_mods' );
 
 /**
  * Disable Jetpack features that are not compatible with AMP.
- *
  **/
 function volt_jetpack_mods() {
 	if ( Jetpack::is_module_active( 'stats' ) ) {
@@ -51,7 +49,6 @@ add_action( 'wp_footer', 'volt_jetpack_deregister_footer_scripts' );
  * Remove the Related Posts placeholder and headline that gets hooked into the_content
  *
  * That placeholder is useless since we can't ouput, and don't want to output Related Posts in AMP.
- *
  **/
 function volt_disable_related_posts() {
 	if ( class_exists( 'Jetpack_RelatedPosts' ) ) {

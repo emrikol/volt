@@ -7,7 +7,7 @@
  * @package Volt
  */
 
-if ( ! is_admin() ) {
+if ( ! is_user_logged_in() ) {
 	// Frontend CSS needs to all be concatenated together, and under 50,000 bytes
 	require get_template_directory() . '/inc/cssconcat.php';
 }
@@ -151,6 +151,9 @@ add_action( 'widgets_init', 'volt_remove_recent_comments_widget_style' );
 function volt_scripts() {
 	wp_enqueue_style( 'volt-style', get_stylesheet_uri() );
 
+	$time = filemtime( get_template_directory() . '/css/menu.css' );
+	wp_enqueue_style( 'volt-style-menu', get_stylesheet_directory_uri() . '/css/menu.css', array( 'volt-style' ), $time );
+
 	// Not AMP compatible.
 	wp_enqueue_script( 'amp-js', 'https://cdn.ampproject.org/v0.js', array(), null );
 	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array(), null );
@@ -167,11 +170,15 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 	$async = array(
 		'amp-js',
 		'amp-form',
+		'amp-audio',
 	);
 
 	$custom = array(
 		'amp-form' => array(
 			'custom-element' => 'amp-form',
+		),
+		'amp-audio' => array(
+			'custom-element' => 'amp-audio',
 		),
 	);
 
@@ -325,6 +332,21 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 			'width'       => true,
 		);
 
+		$amp_tags['amp-audio'] = array(
+			'width' => true,
+			'height' => true,
+			'src' => true,
+		);
+
+		$amp_tags['source'] = array(
+			'type' => true,
+			'src' => true,
+		);
+
+		$amp_tags['div'] = array(
+			'fallback' => true,
+		);
+
 		// Required for password protected posts.
 		$allowed_tags['form']['action-xhr'] = true;
 		$allowed_tags['input']['name'] = true;
@@ -344,6 +366,33 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 				}
 			}
 		}
+
+		return $allowed_tags;
+	}
+}
+
+add_filter( 'wp_kses_allowed_html', 'volt_svg_allowed_tags', 5, 2 );
+if ( ! function_exists( 'volt_svg_allowed_tags ' ) ) {
+	function volt_svg_allowed_tags( $allowed_tags, $context ) {
+		$svg_tags = array();
+
+		$svg_tags['svg'] = array(
+			'xmlns' => true,
+			'width' => true,
+			'height' => true,
+		);
+
+		$svg_tags['g'] = array(
+			'fill' => true,
+			'fill-rule' => true,
+		);
+
+		$svg_tags['path'] = array(
+			'd' => true,
+			'class' => true,
+		);
+
+		$allowed_tags = array_merge( $svg_tags, $allowed_tags );
 
 		return $allowed_tags;
 	}
@@ -404,6 +453,126 @@ if ( ! function_exists( 'volt_content_transform_images' ) ) {
 }
 add_filter( 'the_content', 'volt_content_transform_images', 10010, 1 ); // Run _very_ late, just in case any other filters add images.
 
+add_filter( 'wp_audio_shortcode_override', 'volt_audio_shortcode', 10, 3 );
+function volt_audio_shortcode( $attr, $content = '' ) {
+	$post_id = get_post() ? get_the_ID() : 0;
+
+	static $instance = 0;
+	$instance++;
+
+	$audio = null;
+
+	$default_types = wp_get_audio_extensions();
+	$defaults_atts = array(
+		'src'      => '',
+		'loop'     => '',
+		'autoplay' => '',
+		'preload'  => 'none',
+		'class'    => 'wp-audio-shortcode',
+		'style'    => 'width: 100%;',
+	);
+	foreach ( $default_types as $type ) {
+		$defaults_atts[ $type ] = '';
+	}
+
+	$atts = shortcode_atts( $defaults_atts, $attr, 'audio' );
+
+	$primary = false;
+	$no_support = false;
+	if ( ! empty( $atts['src'] ) ) {
+		$type = wp_check_filetype( $atts['src'], wp_get_mime_types() );
+		if ( ! in_array( strtolower( $type['ext'] ), $default_types, true ) ) {
+			$no_support = sprintf( '<a class="wp-embedded-audio" href="%s">%s</a>', esc_url( $atts['src'] ), esc_html( $atts['src'] ) );
+		}
+		$primary = true;
+		array_unshift( $default_types, 'src' );
+	} else {
+		foreach ( $default_types as $ext ) {
+			if ( ! empty( $atts[ $ext ] ) ) {
+				$type = wp_check_filetype( $atts[ $ext ], wp_get_mime_types() );
+				if ( strtolower( $type['ext'] ) === $ext ) {
+					$primary = true;
+				}
+			}
+		}
+	}
+
+	if ( ! $primary ) {
+		$audios = get_attached_media( 'audio', $post_id );
+		if ( empty( $audios ) ) {
+			return;
+		}
+
+		$audio = reset( $audios );
+		$atts['src'] = wp_get_attachment_url( $audio->ID );
+		if ( empty( $atts['src'] ) ) {
+			return;
+		}
+
+		array_unshift( $default_types, 'src' );
+	}
+
+	/**
+	 * Filters the class attribute for the audio shortcode output container.
+	 *
+	 * @since 3.6.0
+	 *
+	 * @param string $class CSS class or list of space-separated classes.
+	 */
+	$atts['class'] = apply_filters( 'wp_audio_shortcode_class', $atts['class'] );
+
+	$html_atts = array(
+		'class'    => $atts['class'],
+		'id'       => sprintf( 'audio-%d-%d', $post_id, $instance ),
+		'loop'     => wp_validate_boolean( $atts['loop'] ),
+		'autoplay' => $atts['autoplay'],
+	);
+
+	// These ones should just be omitted altogether if they are blank
+	foreach ( array( 'loop', 'autoplay' ) as $a ) {
+		if ( empty( $html_atts[ $a ] ) ) {
+			unset( $html_atts[ $a ] );
+		}
+	}
+
+	$attr_strings = array();
+	foreach ( $html_atts as $k => $v ) {
+		$attr_strings[] = $k . '="' . esc_attr( $v ) . '"';
+	}
+
+	$html = '';
+
+	$html .= sprintf( '<amp-audio %s>', join( ' ', $attr_strings ) );
+
+	$fileurl = '';
+	$source = '<source type="%s" src="%s">';
+	foreach ( $default_types as $fallback ) {
+		if ( ! empty( $atts[ $fallback ] ) ) {
+			if ( empty( $fileurl ) ) {
+				$fileurl = $atts[ $fallback ];
+			}
+			$type = wp_check_filetype( $atts[ $fallback ], wp_get_mime_types() );
+			$url = add_query_arg( '_', $instance, $atts[ $fallback ] );
+			$html .= sprintf( $source, $type['type'], esc_url( $url ) );
+		}
+	}
+
+	if ( $no_support ) {
+		$html .= '<div fallback>' . $no_support . '</div>';
+	}
+	$html .= '</amp-audio>';
+	return $html;
+}
+
+add_filter( 'wp', 'volt_amp_stuff' );
+function volt_amp_stuff() {
+	global $post;
+
+	if ( has_shortcode( $post->post_content, 'audio' ) ) {
+		wp_enqueue_script( 'amp-audio', 'https://cdn.ampproject.org/v0/amp-audio-0.1.js', array(), null );
+	}
+}
+
 if ( ! function_exists( 'volt_remove_comment_reply_link_style' ) ) {
 	function volt_remove_comment_reply_link_style( $formatted_link, $link, $text ) {
 		return preg_replace( '/(<[^>]+) style=".*?"/i', '$1', $formatted_link );
@@ -444,6 +613,54 @@ if ( ! function_exists( 'volt_big_css_admin_notice' ) ) {
 	}
 }
 add_action( 'admin_notices', 'volt_big_css_admin_notice' );
+
+function volt_filter_post_password_form() {
+	global $post;
+	return 'This page is protected.  Please <a href="' . esc_url( wp_login_url( get_permalink( $post->ID ) ) ) . '" title="Login">Login</a>.';
+}
+add_filter( 'the_password_form', 'volt_filter_post_password_form' );
+
+
+if ( ! function_exists( ( 'volt_customize_comments' ) ) ) {
+	function volt_customize_comments( $comment, $args, $depth ) {
+		$GLOBALS['comment'] = $comment;
+		global $post;
+		?>
+		<li <?php comment_class(); ?> id="li-comment-<?php comment_ID(); ?>">
+		<article id="comment-<?php comment_ID(); ?>" class="comment">
+			<div class="comment-author">
+				<?php
+				$size = 36;
+				$image_amp_tag = sprintf( '<amp-img layout="fixed" src="%s" srcset="%s" width="%d" height="%d" class="avatar avatar-' . $size . ' photo"></amp-img>',
+					esc_url( get_avatar_url( get_comment_author_email(), array( 'size' => $size ) ) ),
+					esc_attr( get_avatar_url( get_comment_author_email(), array( 'size' => $size ) ) . '2x 2x' ),
+					absint( $size ),
+					absint( $size )
+				);
+				echo wp_kses_post( $image_amp_tag );
+				?>
+				<span class="author-name"><?php comment_author_link(); ?></span>
+			</div>
+			<div class="comment-content">
+				<?php if ( '0' === $comment->comment_approved ) : ?>
+					<em><?php esc_html_e( 'Your comment is awaiting moderation.', 'volt' ) ?></em>
+					<br/>
+				<?php endif; ?>
+				<?php comment_text(); ?>
+			</div>
+			<div class="comment-footer">
+				<span class="comment-date"><?php comment_date(); ?></span>
+				<?php comment_reply_link( array_merge( $args, array(
+					'reply_text' => esc_html__( 'Reply', 'volt' ),
+					'depth'      => $depth,
+					'max_depth'  => $args['max_depth'],
+				) ) ); ?>
+				<?php edit_comment_link( esc_html__( 'Edit', 'volt' ) ); ?>
+			</div>
+		</article>
+		<?php
+	}
+}
 
 /**
  * Implement the Custom Header feature.

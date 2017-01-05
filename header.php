@@ -4,7 +4,7 @@
 		<meta charset="<?php bloginfo( 'charset' ); ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 		<link rel="profile" href="http://gmpg.org/xfn/11">
-		<?php if ( is_front_page() ) : ?>
+		<?php if ( is_front_page() || is_author() || is_archive() ) : ?>
 		<link rel="canonical" href="<?php echo esc_url( volt_get_current_url() ); ?>">
 		<?php endif; ?>
 		<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
@@ -36,25 +36,22 @@
 						}
 						?>
 						</div>
-						<button id="toggle-navigation" class="toggle-navigation" name="toggle-navigation" aria-expanded="false">
-							<span class="screen-reader-text">
-								<?php esc_html_e( 'open menu', 'volt' ); ?>
-							</span>
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="18">
-								<g fill="#6B6B6B" fill-rule="evenodd">
-									<path d="M0 16h24v2H0z" class="rect1"/>
-									<path d="M0 8h24v2H0z" class="rect2"/>
-									<path d="M0 0h24v2H0z" class="rect3"/>
-								</g>
-							</svg>
-						</button>
+						<nav class="site-navbar">
+							<input type="checkbox" id="toggle_menu" class="toggle-menu-checkbox" />
+							<label for="toggle_menu" class="toggle-menu-label uppercase"></label>
+							<input type="checkbox" id="toggle_overlay" class="toggle-overlay-checkbox" />
+							<label for="toggle_menu" class="toggle-overlay-label uppercase"></label>
+							<?php wp_nav_menu( array( 'theme_location' => 'primary' ) ); ?>
+						</nav>
 						<div id="menu-primary-container" class="menu-primary-container">
 							<div class="max-width">
 								<div id="scroll-container" class="scroll-container">
 									<?php if ( get_bloginfo( 'description' ) ) : ?>
 									<p class="tagline"><?php echo esc_html( get_bloginfo( 'description' ) ); ?></p>
 									<?php endif; ?>
-									<?php get_template_part( 'menu', 'primary' ); ?>
+
+
+
 									<?php get_template_part( 'content/search-bar' ); ?>
 									<?php // volt_social_icons_output(); ?>
 								</div>

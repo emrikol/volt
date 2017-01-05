@@ -9,7 +9,7 @@ if ( comments_open() ) { ?>
 	<section id="comments" class="comments">
 		<div class="comments-number">
 			<h2>
-				<?php comments_number( __( 'Be First to Comment', 'volt' ), __( 'One Comment', 'volt' ), __( '% Comments', 'volt' ) ); ?>
+				<?php comments_number( esc_html__( 'Be First to Comment', 'volt' ), esc_html__( 'One Comment', 'volt' ), esc_html__( '% Comments', 'volt' ) ); ?>
 			</h2>
 		</div>
 		<ol class="comment-list">
@@ -29,7 +29,7 @@ if ( comments_open() ) { ?>
 	<section id="comments" class="comments">
 		<div class="comments-number">
 			<h2>
-				<?php comments_number( __( 'Be First to Comment', 'volt' ), __( 'One Comment', 'volt' ), __( '% Comments', 'volt' ) ); ?>
+				<?php comments_number( esc_html__( 'Be First to Comment', 'volt' ), esc_html__( 'One Comment', 'volt' ), esc_html__( '% Comments', 'volt' ) ); ?>
 			</h2>
 		</div>
 		<ol class="comment-list">
@@ -51,7 +51,7 @@ if ( comments_open() ) { ?>
 	<section id="comments" class="comments">
 		<div class="comments-number">
 			<h2>
-				<?php comments_number( __( 'Be First to Comment', 'volt' ), __( 'One Comment', 'volt' ), __( '% Comments', 'volt' ) ); ?>
+				<?php comments_number( esc_html__( 'Be First to Comment', 'volt' ), esc_html__( 'One Comment', 'volt' ), esc_html__( '% Comments', 'volt' ) ); ?>
 			</h2>
 		</div>
 		<ol class="comment-list">
