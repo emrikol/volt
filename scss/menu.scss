@@ -118,12 +118,12 @@ body.admin-bar .menu {
 
 .toggle-menu-label {
 	cursor: pointer;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
 	display: block;
 	position: relative;
 	user-select: none;
 	float: right;
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
 	&:before {
 		background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="18"><g fill="#1A1A1A" fill-rule="evenodd"><path d="M0 16h24v2H0z" class="rect1"/><path d="M0 8h24v2H0z" class="rect2"/><path d="M0 0h24v2H0z" class="rect3"/></g></svg>');
 		content: "";

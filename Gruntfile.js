@@ -9,7 +9,8 @@ module.exports = function( grunt ) {
 				},
 				files: {
 					'style.css': 'scss/style.scss',
-					'css/menu.css': 'scss/menu.scss'
+					'css/menu.css': 'scss/menu.scss',
+					'css/jetpack-sharing.css': 'scss/jetpack-sharing.scss'
 				}
 			}
 		},

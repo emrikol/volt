@@ -156,6 +156,7 @@ function volt_scripts() {
 
 	// Not AMP compatible.
 	wp_enqueue_script( 'amp-js', 'https://cdn.ampproject.org/v0.js', array(), null );
+	// Find a way to auto-enqueue form JS when needed
 	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array(), null );
 }
 add_action( 'wp_enqueue_scripts', 'volt_scripts' );
@@ -171,6 +172,7 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		'amp-js',
 		'amp-form',
 		'amp-audio',
+		'amp-social-share',
 	);
 
 	$custom = array(
@@ -179,6 +181,9 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		),
 		'amp-audio' => array(
 			'custom-element' => 'amp-audio',
+		),
+		'amp-social-share' => array(
+			'custom-element' => 'amp-social-share',
 		),
 	);
 
@@ -338,6 +343,20 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 			'src' => true,
 		);
 
+		$amp_tags['amp-social-share'] = array(
+			'type' => true,
+			'width' => true,
+			'height' => true,
+			'data-share-endpoint' => true,
+			'data-param-text' => true,
+			'data-param-url' => true,
+			'data-param-subject' => true,
+			'data-param-body' => true,
+			'data-param-href' => true,
+			'data-param-app_id' => true,
+			'layout' => true,
+		);
+
 		$amp_tags['source'] = array(
 			'type' => true,
 			'src' => true,
@@ -353,6 +372,7 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 		$allowed_tags['input']['id'] = true;
 		$allowed_tags['input']['type'] = true;
 		$allowed_tags['input']['size'] = true;
+		$allowed_tags['input']['class'] = true;
 		$allowed_tags['input']['value'] = true;
 
 		if ( 'post' === $context ) {

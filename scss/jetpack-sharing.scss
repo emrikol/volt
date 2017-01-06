@@ -1,0 +1,162 @@
+/**
+ * Sharedaddy Base Styles
+ *
+ * Contains styles for modules, containers, buttons
+ */
+
+/* Master container */
+
+#jp-post-flair {
+	padding-top: .5em;
+}
+
+/* Overall Sharedaddy block title */
+
+div.sharedaddy, #content div.sharedaddy, #main div.sharedaddy {
+	clear: both;
+}
+
+div.sharedaddy h3.sd-title {
+	margin: 0 0 1em 0;
+	display: inline-block;
+	line-height: 1.2;
+	font-size: 9pt;
+	font-weight: bold;
+	&:before {
+		content: "";
+		display: block;
+		width: 100%;
+		min-width: 30px;
+		border-top: 1px solid #ddd;
+		margin-bottom: 1em;
+	}
+}
+
+/* No current support for highlander comments
+body {
+	&.highlander-light h3.sd-title:before {
+		border-top: 1px solid rgba(0, 0, 0, 0.2);
+	}
+	&.highlander-dark h3.sd-title:before {
+		border-top: 1px solid rgba(255, 255, 255, 0.4);
+	}
+}
+*/
+
+/* Sharing services list */
+
+.sd-content {
+	ul {
+		padding: 0;
+		margin: 0 0 .7em 0;
+		list-style: none;
+		li {
+			margin: 0 5px 5px 0;
+			display: inline-block;
+			padding: 0;
+		}
+	}
+	label {
+		cursor: pointer;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+
+		text-decoration: none;
+		display: inline-block;
+		font-size: 12px;
+		font-family: "Open Sans", sans-serif;
+		font-weight: normal;
+		border-radius: 3px;
+		color: #777;
+		background: #f8f8f8;
+		border: 1px solid #cccccc;
+		box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+		text-shadow: none;
+		line-height: 23px;
+		padding: 1px 8px 0px 5px;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+	input {
+		position:absolute;
+		left:-999em
+	}
+}
+
+input.volt-sd-show-hidden:checked + div.sharing-hidden {
+	opacity:1;
+	height:auto;
+	overflow:hidden;
+}
+
+.sharing-hidden {
+	opacity:0;
+	max-height:0;
+	border:none;
+}
+
+/* Overflow Sharing dialog */
+
+.sharing-hidden .inner {
+	position: absolute;
+	z-index: 2;
+	border: 1px solid #ccc;
+	padding: 10px;
+	background: #fff;
+	box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.2);
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+	margin-top: 5px;
+	max-width: 400px;
+	ul {
+		margin: 0;
+	}
+}
+
+.sd-social-official .sd-content .sharing-hidden ul > li.share-end {
+	clear: both;
+	margin: 0;
+	height: 0;
+}
+
+.sharing-hidden {
+	.inner {
+		&:before {
+			position: absolute;
+			z-index: 1;
+			top: -8px;
+			left: 20px;
+			width: 0;
+			height: 0;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-bottom: 8px solid #ccc;
+			content: "";
+			display: block;
+		}
+		&:after {
+			position: absolute;
+			z-index: 1;
+			top: -8px;
+			left: 20px;
+			width: 0;
+			height: 0;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-bottom: 8px solid #ccc;
+			content: "";
+			display: block;
+			z-index: 2;
+			top: -7px;
+			border-left: 6px solid transparent;
+			border-right: 6px solid transparent;
+			border-bottom: 8px solid #fff;
+		}
+	}
+	ul {
+		margin: 0;
+	}
+}
