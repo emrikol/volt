@@ -1,0 +1,135 @@
+/* =Variables + Placeholder
+----------------------------------------------------- */
+$navbar-background: #fff;
+$navbar-color: #1A1A1A;
+
+$transition: .2s ease-in-out;
+
+$menu-width: 240px;
+$menu-shadow: 4px 0 16px -4px rgba(0, 0, 0, .2);
+
+%transition {
+	-webkit-transition: $transition;
+	-moz-transition: $transition;
+	transition: $transition;
+}
+
+/* =Navbar
+----------------------------------------------------- */
+.site-navbar {
+	position: relative;
+}
+
+/* =Menu
+----------------------------------------------------- */
+.menu {
+	@extend %transition;
+	background: #924677;
+	opacity: 0.9;
+	bottom: 0;
+	font-size: 14px;
+	height: 100%;
+	left: -$menu-width;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	position: fixed;
+	top: 0;
+	width: $menu-width;
+	text-align: center;
+	z-index: 20;
+}
+body.admin-bar .menu {
+	padding-top: 46px;
+}
+.menu-item {
+	margin-bottom: 1.5em;
+	letter-spacing: 0.06em;
+	position: relative;
+	text-transform: uppercase;
+	> a {
+		color: #fff;
+		font-weight: 700;
+		position: relative;
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}
+
+.menu-item.current-menu-item > a {
+	&:before {
+		right: -18px;
+	}
+	&:after {
+		left: -18px;
+	}
+	&:before,&:after {
+		content: '';
+		position: absolute;
+		top: 10px;
+		width: 12px;
+		height: 2px;
+		background: #fff;
+	}
+}
+
+/* =Overlay toggle
+----------------------------------------------------- */
+.toggle-overlay-checkbox {
+	display: none;
+}
+
+.toggle-overlay-label {
+	@extend %transition;
+	bottom: 0;
+	left: 0;
+	opacity: 0;
+	pointer-events: none; // Important to prevent unwanted triggering
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 10;
+}
+
+/* Display menu overlay */
+.toggle-menu-checkbox:checked ~ .toggle-overlay-label {
+	background: rgba(0, 0, 0, .5);
+	opacity: 1;
+	pointer-events: auto;
+}
+
+
+/* =Menu toggle
+----------------------------------------------------- */
+.toggle-menu-checkbox,
+.toggle-menu-label {
+	display: none;
+}
+
+.toggle-menu-checkbox:checked ~ .menu-short-container .menu {
+	left: 0;
+}
+
+.toggle-overlay-checkbox:checked ~ .menu-short-container .menu {
+	left: -$menu-width;
+}
+
+.toggle-menu-label {
+	cursor: pointer;
+	display: block;
+	position: relative;
+	user-select: none;
+	float: right;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	&:before {
+		background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="18"><g fill="#1A1A1A" fill-rule="evenodd"><path d="M0 16h24v2H0z" class="rect1"/><path d="M0 8h24v2H0z" class="rect2"/><path d="M0 0h24v2H0z" class="rect3"/></g></svg>');
+		content: "";
+		height: 18px;
+		width: 24px;
+		position: absolute;
+		right: 0;
+	}
+}
