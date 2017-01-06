@@ -2,6 +2,18 @@ module.exports = function( grunt ) {
 	grunt.initConfig( {
 		pkg: grunt.file.readJSON( 'package.json' ),
 
+		version: {
+			scss: {
+				options: {
+					prefix: 'Version:\\s*'
+				},
+				src: ['scss/style.scss']
+			},
+			package: {
+				src: ['package.json']
+			}
+		},
+
 		sass: {
 			all: {
 				options: {
@@ -18,7 +30,7 @@ module.exports = function( grunt ) {
 		watch: {
 			styles: {
 				files: [ 'scss/**/*.scss' ],
-				tasks: [ 'sass' ],
+				tasks: [ 'version::patch', 'sass' ],
 				options: {
 					debounceDelay: 500
 				}
@@ -68,7 +80,7 @@ module.exports = function( grunt ) {
 	require( 'load-grunt-tasks' )(grunt);
 
 	grunt.registerTask( 'default', ['concat', 'uglify', 'sass', 'cssmin' ] );
-	grunt.registerTask( 'css', ['sass', 'autoprefixer', 'cssmin'] );
+	grunt.registerTask( 'css', [ 'version::patch', 'sass' ] );
 	grunt.registerTask( 'js', ['concat', 'uglify'] );
 	grunt.registerTask( 'build', ['default', 'clean', 'copy', 'compress'] );
 
