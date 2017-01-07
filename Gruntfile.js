@@ -3,6 +3,12 @@ module.exports = function( grunt ) {
 		pkg: grunt.file.readJSON( 'package.json' ),
 
 		version: {
+			readme: {
+				options: {
+					prefix: 'Stable tag:\\s*'
+				},
+				src: ['readme.txt']
+			},
 			scss: {
 				options: {
 					prefix: 'Version:\\s*'
