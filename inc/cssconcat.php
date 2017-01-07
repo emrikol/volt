@@ -74,12 +74,16 @@ class WPcom_CSS_Concat extends WP_Styles {
 				$do_concat = false;
 			}
 
-			// Concat and canonicalize the paths only for
-			// existing scripts that aren't outside ABSPATH
-			$css_realpath = realpath( ABSPATH . $css_url['path'] );
+			// Concat and canonicalize the paths only for existing scripts that aren't outside ABSPATH
+			if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+				$css_realpath = ABSPATH . $css_url['path'];
+			} else {
+				$css_realpath = realpath( ABSPATH . $css_url['path'] );
+			}
 			if ( ! $css_realpath || 0 !== strpos( $css_realpath, ABSPATH ) ) {
 				$do_concat = false;
-			} else { $css_url['path'] = substr( $css_realpath, strlen( ABSPATH ) - 1 );
+			} else {
+				$css_url['path'] = substr( $css_realpath, strlen( ABSPATH ) - 1 );
 			}
 
 			// Allow plugins to disable concatenation of certain stylesheets.
