@@ -37,3 +37,52 @@ function volt_pingback_header() {
 	}
 }
 add_action( 'wp_head', 'volt_pingback_header' );
+
+if ( ! function_exists( 'volt_remove_anonymous_object_filter' ) ) {
+	/**
+	* Remove an anonymous object filter.
+	*
+	* http://wordpress.stackexchange.com/a/57088/89
+	*
+	* @param  string $tag    Hook name.
+	* @param  string $class  Class name
+	* @param  string $method Method name
+	*
+	* @return void
+	*/
+	function volt_remove_anonymous_object_filter( $tag, $class, $method ) {
+		$filters = false;
+
+		if ( isset( $GLOBALS['wp_filter'][ $tag ] ) ) {
+			$filters = $GLOBALS['wp_filter'][ $tag ];
+		}
+
+		if ( $filters ) {
+			foreach ( $filters as $priority => $filter ) {
+				foreach ( $filter as $identifier => $function ) {
+					if ( ! is_array( $function ) ) {
+						continue;
+					}
+					if ( ! $function['function'][0] instanceof $class ) {
+						continue;
+					}
+					if ( $method == $function['function'][1] ) {
+						remove_filter(
+							$tag,
+							array( $function['function'][0], $method ),
+							$priority
+						);
+					}
+				}
+			}
+		}
+	}
+}
+
+function volt_pressable_extras() {
+	// Remove forced JS from Pressable MU Plugins
+	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+		volt_remove_anonymous_object_filter( 'wp_footer', 'Pressable_Mu_Plugin', 'gauges_init' );
+	}
+}
+add_action( 'init', 'volt_pressable_extras' );
