@@ -76,7 +76,7 @@ class WPcom_CSS_Concat extends WP_Styles {
 
 			// Concat and canonicalize the paths only for existing scripts that aren't outside ABSPATH
 			if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
-				$css_realpath = ABSPATH . $css_url['path'];
+				$css_realpath = str_replace( '//', '/', ABSPATH . $css_url['path'] );
 			} else {
 				$css_realpath = realpath( ABSPATH . $css_url['path'] );
 			}
@@ -127,7 +127,12 @@ class WPcom_CSS_Concat extends WP_Styles {
 					}
 					continue;
 				} elseif ( count( $css ) > 1 ) {
-					$paths = array_map( function( $url ) { return ABSPATH . $url;
+					$paths = array_map( function( $url ) {
+						if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+							return str_replace( '//', '/', ABSPATH . $url );
+						} else {
+							return ABSPATH . $url;
+						}
 					}, $css );
 					$mtime = max( array_map( 'filemtime', $paths ) );
 					$path_str = implode( $css, ',' ) . "?m={$mtime}";
@@ -138,21 +143,22 @@ class WPcom_CSS_Concat extends WP_Styles {
 							$path_str = '-' . $path_64;
 						}
 					}
-
-					$href = $siteurl . '/_static/??' . $path_str;
-				} else {
-					$href = $this->cache_bust_mtime( $siteurl . current( $css ) );
 				}
 
 				$css_size = 0;
 				foreach ( $css as $css_url ) {
 					$cache_key = md5( $css_url . ':' . $mtime );
-					$css_header = '/* CSS: ' . $css_url . ':' . $mtime . ' */';
 
-					$cached_minfied_css = wp_cache_get( $cache_key, 'volt_concat_css' );
-					if ( false === $cached_minfied_css ) {
+					$cached_minified_css = wp_cache_get( $cache_key, 'volt_concat_css' );
+					if ( false === $cached_minified_css ) {
 						$cached_minified_css = $css_minify->run( file_get_contents( $siteurl . $css_url ) ); // @codingStandardsIgnoreLine.
 						wp_cache_set( $cache_key, $cached_minified_css, 'volt_concat_css', HOUR_IN_SECONDS * 24 );
+					}
+
+					if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
+						$css_header = '/* CSS: ' . $css_url . ':' . md5( $cached_minified_css ) . ' */';
+					} else {
+						$css_header = '/* CSS: ' . $css_url . ':' . $mtime . ' */';
 					}
 
 					echo wp_kses_post( $css_header . PHP_EOL );
