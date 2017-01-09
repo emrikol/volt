@@ -40,16 +40,16 @@ add_action( 'wp_head', 'volt_pingback_header' );
 
 if ( ! function_exists( 'volt_remove_anonymous_object_filter' ) ) {
 	/**
-	* Remove an anonymous object filter.
-	*
-	* http://wordpress.stackexchange.com/a/57088/89
-	*
-	* @param  string $tag    Hook name.
-	* @param  string $class  Class name
-	* @param  string $method Method name
-	*
-	* @return void
-	*/
+	 * Remove an anonymous object filter.
+	 *
+	 * http://wordpress.stackexchange.com/a/57088/89
+	 *
+	 * @param  string $tag    Hook name.
+	 * @param  string $class  Class name
+	 * @param  string $method Method name
+	 *
+	 * @return void
+	 */
 	function volt_remove_anonymous_object_filter( $tag, $class, $method ) {
 		$filters = false;
 
@@ -66,7 +66,7 @@ if ( ! function_exists( 'volt_remove_anonymous_object_filter' ) ) {
 					if ( ! $function['function'][0] instanceof $class ) {
 						continue;
 					}
-					if ( $method == $function['function'][1] ) {
+					if ( $method === $function['function'][1] ) {
 						remove_filter(
 							$tag,
 							array( $function['function'][0], $method ),

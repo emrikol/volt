@@ -45,18 +45,6 @@ function volt_jetpack_deregister_footer_scripts() {
 }
 add_action( 'wp_footer', 'volt_jetpack_deregister_footer_scripts' );
 
-/**
- * Remove the Related Posts placeholder and headline that gets hooked into the_content
- *
- * That placeholder is useless since we can't ouput, and don't want to output Related Posts in AMP.
- **/
-function volt_disable_related_posts() {
-	if ( class_exists( 'Jetpack_RelatedPosts' ) ) {
-		$jprp = Jetpack_RelatedPosts::init();
-		remove_filter( 'the_content', array( $jprp, 'filter_add_target_to_dom' ), 40 );
-	}
-}
-
 function volt_add_stats_pixel( $amp_template ) {
 	?>
 	<amp-pixel src="<?php echo esc_url( volt_build_stats_pixel_url() ); ?>"></amp-pixel>
@@ -91,9 +79,9 @@ function volt_build_stats_pixel_url() {
 	return add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
 }
 
-//////////
+//
 // Sharing
-//////////
+//
 function volt_jetpack_sharing_init() {
 	add_filter( 'sharing_js', 'sharing_disable_js' ); // Disable JS
 	remove_action( 'wp_head', 'sharing_add_header', 1 ); // Disable CSS
@@ -227,6 +215,84 @@ function volt_jetpack_sharing_ampify( $sharing_content ) {
 }
 add_filter( 'jetpack_sharing_display_markup', 'volt_jetpack_sharing_ampify', 10, 1 );
 
+//
+// Related Posts
+//
+function volt_dequeue_jetpack_related_posts() {
+	wp_dequeue_style( 'jetpack_related-posts' );
+	wp_dequeue_script( 'jetpack_related-posts' );
+
+	if ( is_single() ) {
+		wp_enqueue_style( 'volt-style-relatedposts', get_stylesheet_directory_uri() . '/css/jetpack-relatedposts.css', array( 'volt-style' ) );
+	}
+}
+add_action( 'wp', 'volt_dequeue_jetpack_related_posts', 15 );
+
+/**
+ * Remove the Related Posts placeholder and headline that gets hooked into the_content
+ *
+ * That placeholder is useless since we can't ouput, and don't want to output Related Posts in AMP.
+ **/
+function volt_disable_related_posts() {
+	if ( class_exists( 'Jetpack_RelatedPosts' ) ) {
+		$jprp = Jetpack_RelatedPosts::init();
+		remove_filter( 'the_content', array( $jprp, 'filter_add_target_to_dom' ), 40 );
+	}
+}
+
+function volt_jetpack_related_posts( $headline ) {
+	global $post;
+
+	$relatedposts_url = add_query_arg( array( 'relatedposts' => 1 ), get_permalink( $post->ID ) );
+
+	$relatedposts_data = wp_cache_get( 'volt_jprp:' . $post->ID, 'volt' );
+	if ( false === $relatedposts_data ) {
+		$response = wp_remote_get( esc_url_raw( $relatedposts_url ) );
+		if ( ! is_wp_error( $response ) ) {
+			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+		}
+		$relatedposts_data = $response_body;
+		wp_cache_set( 'volt_jprp:' . $post->ID, $relatedposts_data, 'volt', MINUTE_IN_SECONDS * 15 );
+	}
+
+	$relatedposts_markup = '';
+	if ( is_array( $relatedposts_data ) && isset( $relatedposts_data['items'] ) ) {
+		ob_start();
+		echo '<div class="jp-relatedposts-items jp-relatedposts-items-visual">';
+		foreach ( $relatedposts_data['items'] as $item ) {
+			?>
+				<div class="jp-relatedposts-post jp-relatedposts-post<?php echo absint( $item['id'] ); ?> <?php echo $has_image ? '' : 'jp-relatedposts-post-thumbs'; ?>" data-post-id="<?php echo absint( $item['id'] ); ?>" <?php echo $item['format'] ? '' : 'data-post-format="' . esc_attr( $item['format'] ) . '"'; ?>>
+					<?php $has_image = ! empty( $item['img']['src'] ); ?>
+					<a class="jp-relatedposts-post-a jp-relatedposts-post-a overlay" href="<?php echo esc_url( $item['url'] ); ?>" title="<?php echo esc_attr( $item['title'] ); ?>" rel="<?php echo esc_attr( $item['rel'] ); ?>">
+						<?php if ( $has_image ) : ?>
+						<amp-img src="<?php echo esc_url( $item['img']['src'] ); ?>" class="jp-relatedposts-post-img" width="<?php echo esc_attr( $item['img']['width'] ); ?>" height="<?php echo esc_attr( $item['img']['height'] ); ?>" alt="<?php echo esc_attr( $item['title'] ); ?>" layout="responsive"></amp-img>
+						<?php endif; ?>
+					</a>
+					<h4 class="jp-relatedposts-post-title">
+						<a class="jp-relatedposts-post-a" href="<?php echo esc_url( $item['url'] ); ?>" title="<?php echo esc_attr( $item['title'] ); ?>" rel="<?php echo esc_attr( $item['rel'] ); ?>">
+							<?php echo esc_html( $item['title'] ); ?>
+						</a>
+					</h4>
+					<p class="jp-relatedposts-post-excerpt" style="max-height: 7.14286em;">
+						<?php echo esc_html( $item['excerpt'] ); ?>
+					</p>
+					<p class="jp-relatedposts-post-date">
+						<?php echo esc_html( $item['date'] ); ?>
+					</p>
+					<p class="jp-relatedposts-post-context">
+						<?php echo esc_html( $item['context'] ); ?>
+					</p>
+				</div>
+			<?php
+		}
+		echo '</div>';
+		$relatedposts_markup = ob_get_contents();
+		ob_end_clean();
+	}
+
+	return $headline . $relatedposts_markup;
+}
+add_filter( 'jetpack_relatedposts_filter_headline', 'volt_jetpack_related_posts', 10, 1 );
 
 add_action( 'wp', function() {
 	$text = '';
