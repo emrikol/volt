@@ -403,7 +403,6 @@ function volt_jetpack_disable_comments( $active_modules ) {
 			add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
 		}
 	}
-	vip_dump( $active_modules );
 	return $active_modules;
 }
 add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
