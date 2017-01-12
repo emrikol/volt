@@ -374,3 +374,36 @@ add_action( 'wp', function() {
 		wp_enqueue_style( 'volt-style-jetpack-sharing', get_stylesheet_directory_uri() . '/css/jetpack-sharing.css', array( 'volt-style' ), $time );
 	}
 } );
+
+//
+// Likes, Comments
+//
+
+function volt_disable_likes( $modules, $min_version, $max_version ) {
+	unset( $modules['likes'] );
+	unset( $modules['comments'] );
+	unset( $modules['gravatar-hovercards'] );
+	return $modules;
+}
+add_filter( 'jetpack_get_available_modules', 'volt_disable_likes', 20, 3 );
+
+
+function volt_jetpack_disable_comments( $active_modules ) {
+	$modules = array(
+		'likes',
+		'comments',
+		'gravatar-hovercards',
+	);
+	foreach ( $modules as $module ) {
+		$key = array_search( $module, $active_modules );
+		if ( false !== $key ) {
+			unset( $active_modules[ $key ] );
+			remove_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
+			update_option( 'jetpack_active_modules', $active_modules );
+			add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
+		}
+	}
+	vip_dump( $active_modules );
+	return $active_modules;
+}
+add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
