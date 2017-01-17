@@ -383,16 +383,23 @@ function volt_disable_likes( $modules, $min_version, $max_version ) {
 	unset( $modules['likes'] );
 	unset( $modules['comments'] );
 	unset( $modules['gravatar-hovercards'] );
+	unset( $modules['infinite-scroll'] );
 	return $modules;
 }
 add_filter( 'jetpack_get_available_modules', 'volt_disable_likes', 20, 3 );
 
+
+// No Snow, sorry! ☃️
+add_filter( 'jetpack_is_holiday_snow_season', '__return_false' );
 
 function volt_jetpack_disable_comments( $active_modules ) {
 	$modules = array(
 		'likes',
 		'comments',
 		'gravatar-hovercards',
+		'minileven',
+		'infinite-scroll',
+		'holiday-snow',
 	);
 	foreach ( $modules as $module ) {
 		$key = array_search( $module, $active_modules );
@@ -406,3 +413,8 @@ function volt_jetpack_disable_comments( $active_modules ) {
 	return $active_modules;
 }
 add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
+
+//
+// Photon
+//
+remove_action( 'wp_enqueue_scripts', array( Jetpack_Photon::instance(), 'action_wp_enqueue_scripts' ), 9 );
