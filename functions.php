@@ -449,6 +449,7 @@ if ( ! function_exists( 'volt_content_transform_images' ) ) {
 				'layout' => 'responsive', // Needed for amp-img tag.
 			);
 
+
 			foreach ( $img_attr as $attr => $value ) {
 				$result_count = preg_match( '/<\\s*img\\s+.*' . $attr . '=["\'](?<' . $attr . '>.*)["\'].*>/Ui', $img_tag, $tag_matches );
 				if ( ! $result_count ) {
@@ -456,6 +457,13 @@ if ( ! function_exists( 'volt_content_transform_images' ) ) {
 				}
 				$img_attr[ $attr ] = trim( $tag_matches[ $attr ] );
 			}
+
+			// layout needs to be fixed if alignleft or alignright is used, otherwise the AMP img to amp-img JS freaks out
+			$classes = explode( ' ', $img_attr['class'] );
+			if ( in_array( 'alignright', $classes, true ) || in_array( 'alignleft', $classes, true ) ) {
+				$img_attr['layout'] = 'fixed';
+			}
+
 			// Borrowed from http://stackoverflow.com/a/18081767
 			$amp_img = '<amp-img ' . join( ' ', array_map( function( $key ) use ( $img_attr ) {
 				if ( is_bool( $img_attr[ $key ] ) ) {
