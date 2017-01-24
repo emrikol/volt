@@ -272,11 +272,11 @@ if ( ! function_exists( 'volt_featured_image' ) ) {
 if ( ! function_exists( 'volt_excerpt' ) ) {
 	function volt_excerpt() {
 		global $post;
-		$show_full_post = get_theme_mod( 'full_post' );
+		$show_archive_excerpt = get_theme_mod( 'volt_archive_excerpt' );
 		$read_more_text = get_theme_mod( 'read_more_text' );
 		$ismore = strpos( $post->post_content, '<!--more-->' );
 
-		if ( ( 'yes' === $show_full_post ) && ! is_search() ) {
+		if ( ( false === $show_archive_excerpt ) && ! is_search() ) {
 			if ( $ismore ) {
 				// Has to be written this way because i18n text CANNOT be stored in a variable
 				if ( ! empty( $read_more_text ) ) {
@@ -714,4 +714,3 @@ require get_template_directory() . '/inc/customizer.php';
  * Load Jetpack compatibility file.
  */
 require get_template_directory() . '/inc/jetpack.php';
-
