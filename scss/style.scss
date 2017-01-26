@@ -4,7 +4,7 @@ Theme URI: http://underscores.me/
 Author: Derrick Tennant
 Author URI: https://emrikol.com
 Description: An experimental WordPress theme that is AMP ready without any plugins
-Version: 0.1.13
+Version: 0.1.14
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: volt
@@ -170,6 +170,11 @@ a {
 	&:hover, &:active, &:focus {
 		color: #924677;
 		text-decoration: none;
+	}
+
+	&.permalink {
+		text-decoration: none;
+		font-weight: normal;
 	}
 }
 
