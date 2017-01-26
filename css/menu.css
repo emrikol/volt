@@ -12,6 +12,9 @@
 
 /* =Menu
 ----------------------------------------------------- */
+.menu-primary-container {
+  height: 0px; }
+
 .menu {
   background: #924677;
   opacity: 0.9;

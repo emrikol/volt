@@ -22,6 +22,10 @@ $menu-shadow: 4px 0 16px -4px rgba(0, 0, 0, .2);
 
 /* =Menu
 ----------------------------------------------------- */
+.menu-primary-container {
+	height: 0px;
+}
+
 .menu {
 	@extend %transition;
 	background: #924677;
