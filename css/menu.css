@@ -86,10 +86,10 @@ body.admin-bar .menu {
 .toggle-menu-label {
   display: none; }
 
-.toggle-menu-checkbox:checked ~ .menu-short-container .menu {
+.toggle-menu-checkbox:checked ~ div .menu {
   left: 0; }
 
-.toggle-overlay-checkbox:checked ~ .menu-short-container .menu {
+.toggle-overlay-checkbox:checked ~ div .menu {
   left: -240px; }
 
 .toggle-menu-label {
