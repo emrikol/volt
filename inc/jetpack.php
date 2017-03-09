@@ -150,7 +150,6 @@ function volt_jetpack_sharing_ampify( $sharing_content ) {
 	if ( count( $enabled['hidden'] ) > 0 ) {
 
 		$parts = array();
-		$parts[] = $visible;
 		if ( count( $enabled['hidden'] ) > 0 ) {
 			if ( count( $enabled['visible'] ) > 0 ) {
 				$expand = esc_html__( 'More', 'jetpack' );
@@ -261,8 +260,8 @@ function volt_jetpack_related_posts( $headline ) {
 		echo '<div class="jp-relatedposts-items jp-relatedposts-items-visual">';
 		foreach ( $relatedposts_data['items'] as $item ) {
 			?>
+				<?php $has_image = ! empty( $item['img']['src'] ); ?>
 				<div class="jp-relatedposts-post jp-relatedposts-post<?php echo absint( $item['id'] ); ?> <?php echo $has_image ? '' : 'jp-relatedposts-post-thumbs'; ?>" data-post-id="<?php echo absint( $item['id'] ); ?>" <?php echo $item['format'] ? '' : 'data-post-format="' . esc_attr( $item['format'] ) . '"'; ?>>
-					<?php $has_image = ! empty( $item['img']['src'] ); ?>
 					<a class="jp-relatedposts-post-a jp-relatedposts-post-a overlay" href="<?php echo esc_url( $item['url'] ); ?>" title="<?php echo esc_attr( $item['title'] ); ?>" rel="<?php echo esc_attr( $item['rel'] ); ?>">
 						<?php if ( $has_image ) : ?>
 						<amp-img src="<?php echo esc_url( $item['img']['src'] ); ?>" class="jp-relatedposts-post-img" width="<?php echo esc_attr( $item['img']['width'] ); ?>" height="<?php echo esc_attr( $item['img']['height'] ); ?>" alt="<?php echo esc_attr( $item['title'] ); ?>" layout="responsive"></amp-img>
@@ -310,11 +309,6 @@ add_action( 'wp', function() {
 	}
 
 	if ( ( is_preview() || is_admin() ) && ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-		return;
-	}
-
-	// Don't output flair on excerpts
-	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
 		return;
 	}
 
@@ -371,7 +365,7 @@ add_action( 'wp', function() {
 
 	if ( $show ) {
 		wp_enqueue_script( 'amp-social-share', 'https://cdn.ampproject.org/v0/amp-social-share-0.1.js', array(), null );
-		wp_enqueue_style( 'volt-style-jetpack-sharing', get_stylesheet_directory_uri() . '/css/jetpack-sharing.css', array( 'volt-style' ), $time );
+		wp_enqueue_style( 'volt-style-jetpack-sharing', get_stylesheet_directory_uri() . '/css/jetpack-sharing.css', array( 'volt-style' ), null );
 	}
 } );
 

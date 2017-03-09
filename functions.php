@@ -157,7 +157,7 @@ function volt_scripts() {
 	// Not AMP compatible.
 	wp_enqueue_script( 'amp-js', 'https://cdn.ampproject.org/v0.js', array(), null );
 	// Find a way to auto-enqueue form JS when needed
-	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array(), null );
+	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array( 'amp-js' ), null );
 }
 add_action( 'wp_enqueue_scripts', 'volt_scripts' );
 
@@ -173,6 +173,7 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		'amp-form',
 		'amp-audio',
 		'amp-social-share',
+		'amp-twitter',
 	);
 
 	$custom = array(
@@ -184,6 +185,9 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		),
 		'amp-social-share' => array(
 			'custom-element' => 'amp-social-share',
+		),
+		'amp-twitter' => array(
+			'custom-element' => 'amp-twitter',
 		),
 	);
 
@@ -357,9 +361,21 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 			'layout' => true,
 		);
 
+		$amp_tags['amp-twitter'] = array(
+			'width' => true,
+			'height' => true,
+			'data-tweetid' => true,
+			'data-cards' => true,
+			'layout' => true,
+		);
+
 		$amp_tags['source'] = array(
 			'type' => true,
 			'src' => true,
+		);
+
+		$amp_tags['blockquote'] = array(
+			'placeholder' => true,
 		);
 
 		$amp_tags['div'] = array(
@@ -704,6 +720,11 @@ require get_template_directory() . '/inc/template-tags.php';
  * Custom functions that act independently of the theme templates.
  */
 require get_template_directory() . '/inc/extras.php';
+
+/**
+ * Custom embed functionality.
+ */
+require get_template_directory() . '/inc/embeds.php';
 
 /**
  * Customizer additions.
