@@ -48,6 +48,6 @@ function volt_embed_tweets( $html, $url, $attr, $post_id ) {
 			$tweet_id = absint( $matches[1] );
 			$html = '<div class="embed"><amp-twitter layout="responsive" width="300" height="300" data-tweetid="' . esc_attr( $tweet_id ) . '"></amp-twitter></div>';
 		}
-		return $html;
 	}
+	return $html;
 }

@@ -412,3 +412,8 @@ add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
 // Photon
 //
 remove_action( 'wp_enqueue_scripts', array( Jetpack_Photon::instance(), 'action_wp_enqueue_scripts' ), 9 );
+
+//
+// Carousel
+//
+add_filter( 'jp_carousel_maybe_disable', '__return_true' );

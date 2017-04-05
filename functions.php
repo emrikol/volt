@@ -161,6 +161,14 @@ function volt_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'volt_scripts' );
 
+function volt_dequeue_default_script() {
+	// We don't ever need this on the frontend.
+	wp_deregister_script( 'jquery' );
+	wp_deregister_script( 'jquery-migrate' );
+}
+add_action( 'wp_enqueue_scripts', 'volt_dequeue_default_script', 1 );
+
+
 function volt_get_current_url() {
 	global $wp;
 	return home_url( add_query_arg( array(), $wp->request ) );
