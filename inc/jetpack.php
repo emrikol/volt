@@ -14,7 +14,7 @@ add_action( 'init', 'volt_jetpack_mods' );
  * Disable Jetpack features that are not compatible with AMP.
  **/
 function volt_jetpack_mods() {
-	if ( Jetpack::is_module_active( 'stats' ) ) {
+	if ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'stats' ) ) {
 		add_action( 'wp_footer', 'volt_add_stats_pixel' );
 	}
 }
@@ -294,6 +294,10 @@ function volt_jetpack_related_posts( $headline ) {
 add_filter( 'jetpack_relatedposts_filter_headline', 'volt_jetpack_related_posts', 10, 1 );
 
 add_action( 'wp', function() {
+	if ( ! class_exists( 'Jetpack' ) ) {
+		return false;
+	}
+
 	$text = '';
 	$echo = false;
 
@@ -317,12 +321,6 @@ add_action( 'wp', function() {
 	$display_options = $options['global']['show'];
 
 	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options, true ) ) ) {
-		return;
-	}
-
-	if ( is_attachment() && in_array( 'the_excerpt', (array) $wp_current_filter, true ) ) {
-		// Many themes run the_excerpt() conditionally on an attachment page, then run the_content().
-		// We only want to output the sharing buttons once.  Let's stick with the_content().
 		return;
 	}
 
@@ -411,7 +409,9 @@ add_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );
 //
 // Photon
 //
-remove_action( 'wp_enqueue_scripts', array( Jetpack_Photon::instance(), 'action_wp_enqueue_scripts' ), 9 );
+if ( class_exists( 'Jetpack_Photon' ) ) {
+	remove_action( 'wp_enqueue_scripts', array( Jetpack_Photon::instance(), 'action_wp_enqueue_scripts' ), 9 );
+}
 
 //
 // Carousel

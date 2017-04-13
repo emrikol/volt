@@ -197,6 +197,9 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		'amp-twitter' => array(
 			'custom-element' => 'amp-twitter',
 		),
+		'amp-youtube' => array(
+			'custom-element' => 'amp-youtube',
+		),
 	);
 
 	// Add async attribute.
@@ -377,6 +380,13 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 			'layout' => true,
 		);
 
+		$amp_tags['amp-youtube'] = array(
+			'width' => true,
+			'height' => true,
+			'data-videoid' => true,
+			'layout' => true,
+		);
+
 		$amp_tags['source'] = array(
 			'type' => true,
 			'src' => true,
@@ -447,7 +457,6 @@ if ( ! function_exists( 'volt_content_strip_styles' ) ) {
 		return wp_kses_post( $content );
 	}
 }
-
 add_filter( 'the_content', 'volt_content_strip_styles', 10000, 1 );
 
 
@@ -620,7 +629,7 @@ add_filter( 'wp', 'volt_amp_stuff' );
 function volt_amp_stuff() {
 	global $post;
 
-	if ( has_shortcode( $post->post_content, 'audio' ) ) {
+	if ( is_object( $post ) && has_shortcode( $post->post_content, 'audio' ) ) {
 		wp_enqueue_script( 'amp-audio', 'https://cdn.ampproject.org/v0/amp-audio-0.1.js', array(), null );
 	}
 }
