@@ -200,6 +200,9 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		'amp-youtube' => array(
 			'custom-element' => 'amp-youtube',
 		),
+		'amp-instagram' => array(
+			'custom-element' => 'amp-instagram',
+		),
 	);
 
 	// Add async attribute.
@@ -384,6 +387,14 @@ if ( ! function_exists( 'volt_amp_allowed_tags ' ) ) {
 			'width' => true,
 			'height' => true,
 			'data-videoid' => true,
+			'layout' => true,
+		);
+
+		$amp_tags['amp-instagram'] = array(
+			'width' => true,
+			'height' => true,
+			'data-shortcode' => true,
+			'data-captioned' => true,
 			'layout' => true,
 		);
 
@@ -722,6 +733,18 @@ if ( ! function_exists( ( 'volt_customize_comments' ) ) ) {
 		<?php
 	}
 }
+
+if ( ! function_exists( 'volt_admin_bar_additions' ) ) {
+	function volt_admin_bar_additions() {
+		$custom_css = "@media screen and (max-width: 600px) {
+				#wpadminbar {
+					margin-top: -46px;
+				}
+			}";
+		wp_add_inline_style( 'admin-bar', $custom_css );
+	}
+}
+add_action( 'wp_enqueue_scripts', 'volt_admin_bar_additions' );
 
 /**
  * Implement the Custom Header feature.

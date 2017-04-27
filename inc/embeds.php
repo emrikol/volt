@@ -7,6 +7,9 @@ function volt_embeds_enqueue() {
 	if ( volt_check_posts_for_embed( '_volt_embeds_youtube' ) ) {
 		wp_enqueue_script( 'amp-youtube', 'https://cdn.ampproject.org/v0/amp-youtube-0.1.js', array( 'amp-js' ), null );
 	}
+	if ( volt_check_posts_for_embed( '_volt_embeds_instagram' ) ) {
+		wp_enqueue_script( 'amp-instagram', 'https://cdn.ampproject.org/v0/amp-instagram-0.1.js', array( 'amp-js' ), null );
+	}
 }
 add_action( 'wp', 'volt_embeds_enqueue' );
 
@@ -125,4 +128,24 @@ if ( ! function_exists( 'youtube_sanitize_url' ) ) {
 
 		return $url;
 	}
+}
+
+// Instagram oEmbeds
+if ( function_exists( 'jetpack_instagram_handler' ) ) {
+	wp_embed_unregister_handler( 'jetpack_instagram' );
+	wp_oembed_add_provider( '#https?://(www\.)?instagr(\.am|am\.com)/p/.*#i', 'https://api.instagram.com/oembed', true );
+}
+add_filter( 'embed_oembed_html', 'volt_embed_instagram', 10, 4 );
+function volt_embed_instagram( $html, $url, $attr, $post_id ) {
+	if ( false !== strpos( $url, 'https://www.instagram.com' ) ) {
+		if ( 1 === preg_match( '/\/p\/(.*)\//', $url, $matches ) && isset( $matches[1] ) ) {
+			$volt_embeds_instagram = get_post_meta( $post_id, '_volt_embeds_instagram' );
+			if ( ! $volt_embeds_instagram ) {
+				update_post_meta( $post_id, '_volt_embeds_instagram', true );
+			}
+			$shortcode = $matches[1];
+			$html = '<amp-instagram data-shortcode="' . esc_attr( $shortcode ) . '" width="400" height="400" layout="responsive"></amp-instagram>';
+		}
+	}
+	return $html;
 }
