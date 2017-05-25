@@ -182,6 +182,8 @@ function volt_namespace_async_scripts( $tag, $handle ) {
 		'amp-audio',
 		'amp-social-share',
 		'amp-twitter',
+		'amp-youtube',
+		'amp-instagram',
 	);
 
 	$custom = array(
