@@ -25,16 +25,6 @@ div.sharedaddy h3.sd-title {
     border-top: 1px solid #ddd;
     margin-bottom: 1em; }
 
-/* No current support for highlander comments
-body {
-	&.highlander-light h3.sd-title:before {
-		border-top: 1px solid rgba(0, 0, 0, 0.2);
-	}
-	&.highlander-dark h3.sd-title:before {
-		border-top: 1px solid rgba(255, 255, 255, 0.4);
-	}
-}
-*/
 /* Sharing services list */
 .sd-content ul {
   padding: 0;

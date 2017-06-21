@@ -53,7 +53,7 @@
 
 
 									<?php get_template_part( 'content/search-bar' ); ?>
-									<?php // volt_social_icons_output(); ?>
+									<?php // TODO: volt_social_icons_output(); ?>
 								</div>
 							</div>
 						</div>

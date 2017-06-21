@@ -156,8 +156,6 @@ function volt_scripts() {
 
 	// Not AMP compatible.
 	wp_enqueue_script( 'amp-js', 'https://cdn.ampproject.org/v0.js', array(), null );
-	// Find a way to auto-enqueue form JS when needed
-	wp_enqueue_script( 'amp-form', 'https://cdn.ampproject.org/v0/amp-form-0.1.js', array( 'amp-js' ), null );
 }
 add_action( 'wp_enqueue_scripts', 'volt_scripts' );
 
@@ -168,60 +166,10 @@ function volt_dequeue_default_script() {
 }
 add_action( 'wp_enqueue_scripts', 'volt_dequeue_default_script', 1 );
 
-
 function volt_get_current_url() {
 	global $wp;
 	return home_url( add_query_arg( array(), $wp->request ) );
 }
-
-function volt_namespace_async_scripts( $tag, $handle ) {
-	// TODO: filterize this, rename to something more generic
-	$async = array(
-		'amp-js',
-		'amp-form',
-		'amp-audio',
-		'amp-social-share',
-		'amp-twitter',
-		'amp-youtube',
-		'amp-instagram',
-	);
-
-	$custom = array(
-		'amp-form' => array(
-			'custom-element' => 'amp-form',
-		),
-		'amp-audio' => array(
-			'custom-element' => 'amp-audio',
-		),
-		'amp-social-share' => array(
-			'custom-element' => 'amp-social-share',
-		),
-		'amp-twitter' => array(
-			'custom-element' => 'amp-twitter',
-		),
-		'amp-youtube' => array(
-			'custom-element' => 'amp-youtube',
-		),
-		'amp-instagram' => array(
-			'custom-element' => 'amp-instagram',
-		),
-	);
-
-	// Add async attribute.
-	if ( in_array( $handle, $async, true ) ) {
-		$tag = str_replace( ' src', ' async src', $tag );
-	}
-
-	// Custom attributes.
-	if ( isset( $custom[ $handle ] ) && ! empty( $custom[ $handle ] ) ) {
-		foreach ( $custom[ $handle ] as $attribute => $value ) {
-			$tag = str_replace( ' src', ' ' . wp_kses_post( $attribute ) . '="' . esc_attr( $value ) . '" src', $tag );
-		}
-	}
-
-	return $tag;
-}
-add_filter( 'script_loader_tag', 'volt_namespace_async_scripts', 10, 2 );
 
 function volt_deregister_footer_scripts() {
 	// Not AMP compatible.
@@ -495,7 +443,6 @@ if ( ! function_exists( 'volt_content_transform_images' ) ) {
 				'layout' => 'responsive', // Needed for amp-img tag.
 			);
 
-
 			foreach ( $img_attr as $attr => $value ) {
 				$result_count = preg_match( '/<\\s*img\\s+.*' . $attr . '=["\'](?<' . $attr . '>.*)["\'].*>/Ui', $img_tag, $tag_matches );
 				if ( ! $result_count ) {
@@ -738,11 +685,11 @@ if ( ! function_exists( ( 'volt_customize_comments' ) ) ) {
 
 if ( ! function_exists( 'volt_admin_bar_additions' ) ) {
 	function volt_admin_bar_additions() {
-		$custom_css = "@media screen and (max-width: 600px) {
-				#wpadminbar {
-					margin-top: -46px;
-				}
-			}";
+		$custom_css = '@media screen and (max-width: 600px) {
+                #wpadminbar {
+                    margin-top: -46px;
+                }
+            }';
 		wp_add_inline_style( 'admin-bar', $custom_css );
 	}
 }

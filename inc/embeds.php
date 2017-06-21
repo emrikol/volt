@@ -1,5 +1,54 @@
 <?php
 
+function volt_namespace_async_scripts( $tag, $handle ) {
+	// TODO: filterize this, rename to something more generic
+	$async = array(
+		'amp-js',
+		'amp-form',
+		'amp-audio',
+		'amp-social-share',
+		'amp-twitter',
+		'amp-youtube',
+		'amp-instagram',
+	);
+
+	$custom = array(
+		'amp-form' => array(
+			'custom-element' => 'amp-form',
+		),
+		'amp-audio' => array(
+			'custom-element' => 'amp-audio',
+		),
+		'amp-social-share' => array(
+			'custom-element' => 'amp-social-share',
+		),
+		'amp-twitter' => array(
+			'custom-element' => 'amp-twitter',
+		),
+		'amp-youtube' => array(
+			'custom-element' => 'amp-youtube',
+		),
+		'amp-instagram' => array(
+			'custom-element' => 'amp-instagram',
+		),
+	);
+
+	// Add async attribute.
+	if ( in_array( $handle, $async, true ) ) {
+		$tag = str_replace( ' src', ' async src', $tag );
+	}
+
+	// Custom attributes.
+	if ( isset( $custom[ $handle ] ) && ! empty( $custom[ $handle ] ) ) {
+		foreach ( $custom[ $handle ] as $attribute => $value ) {
+			$tag = str_replace( ' src', ' ' . wp_kses_post( $attribute ) . '="' . esc_attr( $value ) . '" src', $tag );
+		}
+	}
+
+	return $tag;
+}
+add_filter( 'script_loader_tag', 'volt_namespace_async_scripts', 10, 2 );
+
 function volt_embeds_enqueue() {
 	if ( volt_check_posts_for_embed( '_volt_embeds_twitter' ) ) {
 		wp_enqueue_script( 'amp-twitter', 'https://cdn.ampproject.org/v0/amp-twitter-0.1.js', array( 'amp-js' ), null );
@@ -10,6 +59,9 @@ function volt_embeds_enqueue() {
 	if ( volt_check_posts_for_embed( '_volt_embeds_instagram' ) ) {
 		wp_enqueue_script( 'amp-instagram', 'https://cdn.ampproject.org/v0/amp-instagram-0.1.js', array( 'amp-js' ), null );
 	}
+	if ( volt_check_posts_for_embed( '_volt_embeds_forms' ) ) {
+		wp_enqueue_script( 'amp-instagram', 'https://cdn.ampproject.org/v0/amp-instagram-0.1.js', array( 'amp-js' ), null );
+	}
 }
 add_action( 'wp', 'volt_embeds_enqueue' );
 
@@ -17,23 +69,31 @@ function volt_check_posts_for_embed( $embed ) {
 	$has_volt_embed = false;
 	if ( is_front_page() || is_archive() ) {
 		global $wp_query;
+
+		$cache_key = $embed . ':' . $wp_query->query_vars_hash;
+		$has_volt_embed = wp_cache_get( $cache_key, 'volt_embeds' );
+		if ( false !== $has_volt_embed ) {
+			return $has_volt_embed;
+		}
+
 		$ids = array();
 		foreach ( $wp_query->posts as $post ) {
 			$ids[] = $post->ID;
 		}
 		$args = array(
 			'post__in' => $ids,
-			'posts_per_page' => 1,
+			'posts_per_page' => count( $ids ),
 			'suppress_filters' => false,
-			'meta_query' => array(
-				'meta_key' => $embed,
+			'meta_query' => array( // @codingStandardsIgnoreLine.
+				'meta_key' => $embed, // @codingStandardsIgnoreLine.
 				'meta_compare' => 'EXISTS',
 			),
 			'fields' => 'ids',
 			'no_found_rows' => true,
 			'update_post_term_cache' => false,
 		);
-		$has_volt_embed = empty( get_posts( $args ) ) ? false : true;
+		$has_volt_embed = empty( get_posts( $args ) ) ? '0' : true; // 0 == false, good enough for our check. @codingStandardsIgnoreLine.
+		wp_cache_set( $cache_key, $has_volt_embed, 'volt_embeds', HOUR_IN_SECONDS );
 	} elseif ( is_single() ) {
 		global $post;
 		$has_volt_embed = get_post_meta( $post->ID, $embed, true );
@@ -109,11 +169,11 @@ if ( ! function_exists( 'jetpack_get_youtube_id' ) ) {
 }
 if ( ! function_exists( 'youtube_sanitize_url' ) ) {
 	/**
-	* Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
-	*
-	* @param string $url
-	* @return string The normalized URL
-	*/
+	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
+	 *
+	 * @param string $url
+	 * @return string The normalized URL
+	 */
 	function youtube_sanitize_url( $url ) {
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
@@ -149,3 +209,17 @@ function volt_embed_instagram( $html, $url, $attr, $post_id ) {
 	}
 	return $html;
 }
+
+// Forms
+function volt_save_form_embed_status( $post_id, $post ) {
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+		return;
+	}
+
+	if ( false !== strpos( $post->post_content, '<form' ) ) {
+		update_post_meta( $post_id, '_volt_embeds_forms', true );
+	} else {
+		delete_post_meta( $post_id, '_volt_embeds_forms' );
+	}
+}
+add_action( 'save_post', 'volt_save_form_embed_status', 10, 2 );

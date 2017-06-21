@@ -246,7 +246,7 @@ function volt_jetpack_related_posts( $headline ) {
 
 	$relatedposts_data = wp_cache_get( 'volt_jprp:' . $post->ID, 'volt' );
 	if ( false === $relatedposts_data ) {
-		$response = wp_remote_get( esc_url_raw( $relatedposts_url ) );
+		$response = wp_remote_get( esc_url_raw( $relatedposts_url ) ); // @codingStandardsIgnoreLine.
 		if ( ! is_wp_error( $response ) ) {
 			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
 		}
@@ -370,7 +370,6 @@ add_action( 'wp', function() {
 //
 // Likes, Comments
 //
-
 function volt_disable_likes( $modules, $min_version, $max_version ) {
 	unset( $modules['likes'] );
 	unset( $modules['comments'] );
@@ -394,7 +393,7 @@ function volt_jetpack_disable_comments( $active_modules ) {
 		'holiday-snow',
 	);
 	foreach ( $modules as $module ) {
-		$key = array_search( $module, $active_modules );
+		$key = array_search( $module, $active_modules, true );
 		if ( false !== $key ) {
 			unset( $active_modules[ $key ] );
 			remove_filter( 'option_jetpack_active_modules', 'volt_jetpack_disable_comments' );

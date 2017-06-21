@@ -25,8 +25,8 @@ function volt_customize_register( $wp_customize ) {
 	$wp_customize->add_control( 'volt_archive_excerpt', array(
 		'type' => 'checkbox',
 		'section' => 'static_front_page',
-		'label' => esc_html__( 'Excerpt on Archives'),
-		'description' => esc_html__( 'Show excerpts, instead of full posts, on archive pages (includes front page).'),
+		'label' => esc_html__( 'Excerpt on Archives' ),
+		'description' => esc_html__( 'Show excerpts, instead of full posts, on archive pages (includes front page).' ),
 	) );
 
 }
