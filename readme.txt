@@ -7,7 +7,7 @@ Stable tag: 0.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-An experimental WordPress theme that is AMP ready without any plugins Edit
+An experimental WordPress theme that is AMP ready without any plugins.
 
 == Description ==
 
