@@ -2,6 +2,12 @@ module.exports = function( grunt ) {
 	grunt.initConfig( {
 		pkg: grunt.file.readJSON( 'package.json' ),
 
+		shell: {
+			target: {
+				command: 'wp2md convert readme.txt > readme.md'
+			}
+		},
+
 		version: {
 			readme: {
 				options: {
@@ -63,7 +69,7 @@ module.exports = function( grunt ) {
 					'!composer.json',
 					'!composer.lock',
 					'!Gruntfile.js',
-					'!package.json',
+					'!package.json'
 				],
 				dest: 'release/<%= pkg.version %>/'
 			}
@@ -80,16 +86,16 @@ module.exports = function( grunt ) {
 				src: ['**/*'],
 				dest: '<%= pkg.name %>/'
 			}
-		},
+		}
 
 	} );
 
-	require( 'load-grunt-tasks' )(grunt);
+	require( 'load-grunt-tasks' )( grunt );
 
-	grunt.registerTask( 'default', ['concat', 'uglify', 'sass', 'cssmin' ] );
+	grunt.registerTask( 'default', [ 'shell' ] );
 	grunt.registerTask( 'css', [ 'version::patch', 'sass' ] );
 	grunt.registerTask( 'js', ['concat', 'uglify'] );
-	grunt.registerTask( 'build', ['default', 'clean', 'copy', 'compress'] );
+	grunt.registerTask( 'build', [ 'css', 'shell' ] );
 
 	grunt.util.linefeed = '\n';
 };
